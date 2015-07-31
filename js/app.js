@@ -1,68 +1,98 @@
-angular.module('website', ['ngAnimate', 'ngTouch'])
-    .controller('MainCtrl', function ($scope) {
-        $scope.slides = [
-            {image: 'images/img00.jpg', description: 'Image 00'},
-            {image: 'images/img01.jpg', description: 'Image 01'},
-            {image: 'images/img02.jpg', description: 'Image 02'},
-            {image: 'images/img03.jpg', description: 'Image 03'},
-            {image: 'images/img04.jpg', description: 'Image 04'}
-        ];
+var app = angular.module('website', ['ngAnimate', 'ngTouch'])
+    
 
-        $scope.direction = 'left';
-        $scope.currentIndex = 0;
+app.controller('MainCtrl', function ($scope, $timeout) {
+    $scope.slides = [
+        {instagran: 'images/img00.jpg', rss: 'images/img04.jpg', date: '01-01-2000'},
+        {instagran: 'images/img01.jpg', rss: 'images/img03.jpg', date: '02-01-2000'},
+        {instagran: 'images/img02.jpg', rss: 'images/img01.jpg', date: '03-01-2000'},
+        {instagran: 'images/img03.jpg', rss: 'images/img00.jpg', date: '04-01-2000'},
+        {instagran: 'images/img04.jpg', rss: 'images/img01.jpg', date: '05-01-2000'}
+    ]
 
-        $scope.setCurrentSlideIndex = function (index) {
-            $scope.direction = (index > $scope.currentIndex) ? 'left' : 'right';
-            $scope.currentIndex = index;
-        };
+    $scope.direction = 'left'
+    $scope.currentIndex = 0
 
-        $scope.isCurrentSlideIndex = function (index) {
-            return $scope.currentIndex === index;
-        };
+    $scope.dataMostrada = $scope.slides[$scope.currentIndex].date
 
-        $scope.prevSlide = function () {
-            $scope.direction = 'left';
-            $scope.currentIndex = ($scope.currentIndex < $scope.slides.length - 1) ? ++$scope.currentIndex : 0;
-        };
+    $scope.autoSlide = true
+    $scope.nomeBotao = "Parar"
 
-        $scope.nextSlide = function () {
-            $scope.direction = 'right';
-            $scope.currentIndex = ($scope.currentIndex > 0) ? --$scope.currentIndex : $scope.slides.length - 1;
-        };
-    })
-    .animation('.slide-animation', function () {
-        return {
-            beforeAddClass: function (element, className, done) {
-                var scope = element.scope();
+    $scope.autoSlideOnOff = function() {
+        $scope.autoSlide = !$scope.autoSlide
+        if($scope.autoSlide){
+            $scope.nomeBotao = "Parar"
+            slideLoop()
+        } else {
+            $scope.nomeBotao = "Continuar"
+        }
+    }
 
-                if (className == 'ng-hide') {
-                    var finishPoint = element.parent().width();
-                    if(scope.direction !== 'right') {
-                        finishPoint = -finishPoint;
-                    }
-                    TweenMax.to(element, 0.5, {left: finishPoint, onComplete: done });
-                }
-                else {
-                    done();
-                }
-            },
-            removeClass: function (element, className, done) {
-                var scope = element.scope();
+    $scope.setCurrentSlideIndex = function (index) {
+        $scope.direction = (index > $scope.currentIndex) ? 'left' : 'right'
+        $scope.currentIndex = index
+    }
 
-                if (className == 'ng-hide') {
-                    element.removeClass('ng-hide');
+    $scope.isCurrentSlideIndex = function (index) {
+        return $scope.currentIndex === index
+    }
 
-                    var startPoint = element.parent().width();
-                    if(scope.direction === 'right') {
-                        startPoint = -startPoint;
-                    }
+    $scope.prevSlide = function () {
+        $scope.direction = 'left'
+        $scope.currentIndex = ($scope.currentIndex + 1) % $scope.slides.length
+        $scope.dataMostrada = $scope.slides[$scope.currentIndex].date
+    }
 
-                    TweenMax.fromTo(element, 0.5, { left: startPoint }, {left: 0, onComplete: done });
-                }
-                else {
-                    done();
-                }
+    $scope.nextSlide = function () {
+        $scope.direction = 'right'
+        $scope.currentIndex = ($scope.currentIndex - 1) % $scope.slides.length
+        $scope.dataMostrada = $scope.slides[$scope.currentIndex].date
+    }
+
+    slideLoop = function (){
+        $timeout(function() {
+            if ($scope.autoSlide) {
+                $scope.prevSlide()
+                slideLoop()
             }
-        };
-    });
+        }, 1500)
+    }
 
+    slideLoop()
+})
+
+app.animation('.slide-animation', function () {
+    return {
+        beforeAddClass: function (element, className, done) {
+            var scope = element.scope()
+
+            if (className == 'ng-hide') {
+                var finishPoint = element.parent().width()
+                if(scope.direction !== 'right') {
+                    finishPoint = -finishPoint
+                }
+                TweenMax.to(element, 0.5, {left: finishPoint, onComplete: done })
+            }
+            else {
+                done()
+            }
+        },
+        removeClass: function (element, className, done) {
+            var scope = element.scope()
+
+            if (className == 'ng-hide') {
+                element.removeClass('ng-hide')
+
+                var startPoint = element.parent().width()
+                if(scope.direction === 'right') {
+                    startPoint = -startPoint
+                }
+
+                TweenMax.fromTo(element, 0.5, { left: startPoint }, {left: 0, onComplete: done })
+            }
+            else {
+                done()
+            }
+        }
+    }
+})

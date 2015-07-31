@@ -5,7 +5,7 @@ body {
 
 .slider {
     width: 800px;
-    height: 400px;
+    height: 800px;
     overflow: hidden;
     position: relative;
     background: #e6e6e6;
@@ -13,9 +13,21 @@ body {
     margin-top: 20px;
 }
 
-.slide {
+.date {
+    text-align: center;
+    color: white;
+    font-size: 150%;    
+}
+
+.slide1 {
     position: absolute;
     top: 0;
+    left: 0;
+}
+
+.slide2 {
+    position: absolute;
+    top: 50%;
     left: 0;
 }
 
@@ -55,8 +67,6 @@ body {
     opacity: 1;
     background-image: url(../assets/img/paddle_next_fff.png);
 }
-
-
 
 /*---------------------------------------------------------
 NAV
